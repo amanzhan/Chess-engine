@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
-#include "moveHandler.h"
+#include "game.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
@@ -44,18 +44,18 @@ class Graphics {
     }
 
     vector<Coordinate> convert_bits_to_coordinate(unsigned long long bits, unsigned int piece);
-    void render_pieces (vector<Coordinate> &coords, unsigned int piece);
-    void load_board(BitBoard &bitBoard); 
-    void load_textures(); 
+    void load_board(const BitBoard &bitBoard); 
+
     vector<sf::Sprite> get_sprites() {
         return sprites; 
     }
     
-
     private: 
     bool playAsWhite; 
     sf::Texture textures[13];
     vector<sf::Sprite> sprites; 
+    void load_textures();
+    void render_pieces (vector<Coordinate> &coords, unsigned int piece); 
 };
 
 void Graphics::load_textures() {
@@ -101,7 +101,7 @@ void Graphics::render_pieces (vector<Coordinate> &coords, unsigned int piece) {
     }
 }
 
-void Graphics::load_board(BitBoard &bitBoard) {
+void Graphics::load_board(const BitBoard &bitBoard) {
     sprites.clear(); 
     sprites.push_back(sf::Sprite(textures[CHESSBOARD]));
     for (unsigned int piece = 0; piece < 12; piece++) {

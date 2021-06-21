@@ -1,5 +1,5 @@
 #include "graphics.h"
-#include "moveHandler.h"
+#include "game.h"
 
 using namespace std;
 
@@ -21,15 +21,19 @@ int main() {
         
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Chess Engine");
     Graphics graphic(playAsWhite); 
+    Game game; 
     BitBoard bitboard; 
     while (window.isOpen())
     {
-        graphic.load_board(bitboard);
+        graphic.load_board(game.get_bitboard());
         sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+
+            }
         }
         for (auto sprite : graphic.get_sprites()) {
             window.draw(sprite);

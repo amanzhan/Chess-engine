@@ -1,5 +1,5 @@
-#ifndef MOVEHANDLER_H
-#define MOVEHANDLER_H
+#ifndef GAME_H
+#define GAME_H
 
 #include "graphics.h"
 
@@ -50,12 +50,46 @@ class BitBoard {
 
     }
 
-    unsigned long long At(unsigned int ind) {
+    unsigned long long At(unsigned int ind) const {
         return PiecePositions[ind];
     }
 
     private:
     unsigned long long PiecePositions[12];
+};
+
+class MoveHandler {
+    public: 
+    void handle_click(unsigned int square, BitBoard &bitBoard) {
+        if (pieceIsSelected) {
+            if (move_is_legal(selectedPosition, square, bitBoard)) {
+
+            } else {
+
+            }
+        } else {
+            pieceIsSelected = true; 
+            selectedPosition = square; 
+        }
+    }
+    private:
+    bool pieceIsSelected; 
+    unsigned int selectedPosition; 
+    bool move_is_legal(unsigned int from, unsigned int to, BitBoard &bitBoard) const;
+};
+
+class Game {
+    public: 
+    Game() {}
+    const BitBoard get_bitboard() const{
+        return bitBoard;
+    }
+
+    void handle_click(unsigned int square);
+
+    private:
+    BitBoard bitBoard; 
+    MoveHandler moveHandler;
 };
 
 #endif
