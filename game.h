@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "graphics.h"
+#include "helper_functions.h"
 #include <math.h>
 #include <iostream>
 
@@ -72,11 +73,22 @@ class BitBoard {
         return PiecePositions[ind];
     }
 
+    void capture_piece(unsigned int piece, unsigned int square); 
+    void move_piece(unsigned int piece, unsigned int from, unsigned int to);
+
     private:
     unsigned long long PiecePositions[12];
     bool pieceIsSelected; 
     unsigned int selectedPosition; 
 };
+
+void BitBoard::capture_piece(unsigned int piece, unsigned int square) {
+    PiecePositions[piece] -= pow(2, square);
+}
+void BitBoard::move_piece(unsigned int piece, unsigned int from, unsigned int to) {
+    PiecePositions[piece] -= pow(2, from);
+    PiecePositions[piece] += pow(2, to);
+}
 
 class Game {
     public: 
@@ -89,27 +101,40 @@ class Game {
     private:
     bool playAsWhite; 
     BitBoard bitBoard; 
-    bool move_is_legal(unsigned int finalPosition, BitBoard &bitBoard) const;
+    void move_if_legal(unsigned int from, unsigned int to);
+    int get_piece_at_square (unsigned int square);
 };
 
 void Game::handle_click(unsigned int square) {
-    unsigned long long position = pow(2, square); 
-    if (playAsWhite) {
-            for (unsigned int piece = 0; piece < 6; piece++) {
-                if (bitBoard.At(piece) & position) {
-                    bitBoard.select_piece(square); 
-                    return; 
-                }
-            }
-    } else {
-        for (unsigned int piece = 6; piece < 12; piece++) {
-            if (bitBoard.At(piece) & position) {
-                bitBoard.select_piece(square); 
-                return;
-            }
-        }
+    // Highlight the clicked piece
+    unsigned int pieceAtSquare = get_piece_at_square(square);
+    if ((playAsWhite && is_white(pieceAtSquare)) || (!playAsWhite && is_black(pieceAtSquare))) {
+        bitBoard.select_piece(square); 
+        return; 
     }
-
+    
+    if (bitBoard.piece_is_selected()) {
+        move_if_legal(bitBoard.selected_position(), square); 
+        bitBoard.deselect_piece(); 
+    }
 }
 
+int Game::get_piece_at_square (unsigned int square) {
+    unsigned long long position = pow(2, square); 
+    for (unsigned int piece = 0; piece < 12; piece++) {
+        if (bitBoard.At(piece) & position) {
+            return piece; 
+        }
+    }
+    return -1; 
+}
+
+void Game::move_if_legal (unsigned int from, unsigned int to) {
+    unsigned int movingPiece = get_piece_at_square(from); 
+    unsigned int capturedPiece = get_piece_at_square(to);
+    bitBoard.move_piece(movingPiece, from, to); 
+    if (is_piece(capturedPiece)) {
+        bitBoard.capture_piece(capturedPiece, to);
+    }
+}
 #endif

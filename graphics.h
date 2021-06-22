@@ -2,6 +2,7 @@
 #define GRAPHICS_H
 
 #include "game.h"
+#include "helper_functions.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
@@ -58,10 +59,6 @@ class Graphics {
         } else {
             return (7 - rank) * 8 + (7-file);
         }
-    }
-
-    bool is_black(unsigned int piece) {
-        return piece > 5;
     }
     
     private: 
