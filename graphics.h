@@ -49,13 +49,27 @@ class Graphics {
     vector<sf::Sprite> get_sprites() {
         return sprites; 
     }
+
+    unsigned int convert_pixel_to_square(int x, int y) {
+        unsigned int rank = 7 - y / 100; 
+        unsigned int file = x / 100; 
+        if (playAsWhite) {
+            return rank * 8 + file; 
+        } else {
+            return (7 - rank) * 8 + (7-file);
+        }
+    }
+
+    bool is_black(unsigned int piece) {
+        return piece > 5;
+    }
     
     private: 
     bool playAsWhite; 
     sf::Texture textures[13];
     vector<sf::Sprite> sprites; 
     void load_textures();
-    void render_pieces (vector<Coordinate> &coords, unsigned int piece); 
+    void render_pieces (vector<Coordinate> &coords, unsigned int piece, const BitBoard &bitBoard); 
 };
 
 void Graphics::load_textures() {
@@ -89,15 +103,21 @@ vector<Coordinate> Graphics::convert_bits_to_coordinate (unsigned long long bits
     return retval;
 }
 
-void Graphics::render_pieces (vector<Coordinate> &coords, unsigned int piece) {
+void Graphics::render_pieces (vector<Coordinate> &coords, unsigned int piece, const BitBoard &bitBoard) {
     for (auto coord : coords) {
-        sprites.push_back(sf::Sprite());
-        sprites.back().setTexture(textures[piece]);
-        if (playAsWhite) {
-            sprites.back().setPosition(100 * coord.get_file() + 10, 100 * (7 - coord.get_rank()) + 10);
-        } else {
-            sprites.back().setPosition(100 * (7 - coord.get_file()) + 10, 100 * coord.get_rank() + 10);
+        sf::Sprite sprite(textures[piece]);
+        if (is_black(piece)) {
+            sprite.setColor(sf::Color(88,88,88));
         }
+        if (playAsWhite) {
+            sprite.setPosition(100 * coord.get_file() + 10, 100 * (7 - coord.get_rank()) + 10);
+        } else {
+            sprite.setPosition(100 * (7 - coord.get_file()) + 10, 100 * coord.get_rank() + 10);
+        }
+        if (8 * coord.get_rank() + coord.get_file() == bitBoard.selected_position()) {
+            sprite.setColor(sf::Color::Red);
+        }
+        sprites.push_back(sprite);
     }
 }
 
@@ -106,7 +126,7 @@ void Graphics::load_board(const BitBoard &bitBoard) {
     sprites.push_back(sf::Sprite(textures[CHESSBOARD]));
     for (unsigned int piece = 0; piece < 12; piece++) {
         vector<Coordinate> coords = convert_bits_to_coordinate(bitBoard.At(piece), piece);
-        render_pieces(coords, piece);
+        render_pieces(coords, piece, bitBoard);
     }
 }
 
