@@ -8,32 +8,7 @@
 
 using namespace std;
 
-const unsigned int W_PAWN = 0; 
-const unsigned int W_BISHOP = 1; 
-const unsigned int W_KNIGHT = 2; 
-const unsigned int W_ROOK = 3; 
-const unsigned int W_QUEEN = 4;
-const unsigned int W_KING = 5;
-const unsigned int B_PAWN = 6;
-const unsigned int B_BISHOP = 7; 
-const unsigned int B_KNIGHT = 8;
-const unsigned int B_ROOK = 9;
-const unsigned int B_QUEEN = 10;
-const unsigned int B_KING = 11;
 
-const unsigned long long W_PAWN_STARTING_POS = 0b0000000000000000000000000000000000000000000000001111111100000000;
-const unsigned long long W_BISHOP_STARTING_POS = 0b0000000000000000000000000000000000000000000000000000000000100100;
-const unsigned long long W_KNIGHT_STARTING_POS = 0b0000000000000000000000000000000000000000000000000000000001000010;
-const unsigned long long W_ROOK_STARTING_POS = 0b0000000000000000000000000000000000000000000000000000000010000001;
-const unsigned long long W_QUEEN_STARTING_POS = 0b0000000000000000000000000000000000000000000000000000000000001000;
-const unsigned long long W_KING_STARTING_POS = 0b0000000000000000000000000000000000000000000000000000000000010000;
-
-const unsigned long long B_PAWN_STARTING_POS = 0b0000000011111111000000000000000000000000000000000000000000000000;
-const unsigned long long B_BISHOP_STARTING_POS = 0b0010010000000000000000000000000000000000000000000000000000000000;
-const unsigned long long B_KNIGHT_STARTING_POS = 0b0100001000000000000000000000000000000000000000000000000000000000;
-const unsigned long long B_ROOK_STARTING_POS = 0b1000000100000000000000000000000000000000000000000000000000000000;
-const unsigned long long B_QUEEN_STARTING_POS = 0b0000100000000000000000000000000000000000000000000000000000000000;
-const unsigned long long B_KING_STARTING_POS = 0b0001000000000000000000000000000000000000000000000000000000000000;
 
 class BitBoard {
     public: 
@@ -56,7 +31,7 @@ class BitBoard {
         return pieceIsSelected;
     }
 
-    void select_piece(unsigned int square) {
+    void select_piece(U64 square) {
         pieceIsSelected = true; 
         selectedPosition = square; 
     }
@@ -69,25 +44,25 @@ class BitBoard {
         return selectedPosition;
     }
 
-    unsigned long long At(unsigned int ind) const {
+    U64 At(unsigned int ind) const {
         return PiecePositions[ind];
     }
 
-    void capture_piece(unsigned int piece, unsigned int square); 
-    void move_piece(unsigned int piece, unsigned int from, unsigned int to);
+    void capture_piece(unsigned int piece, U64 square); 
+    void move_piece(unsigned int piece, U64 from, U64 to);
 
     private:
-    unsigned long long PiecePositions[12];
+    U64 PiecePositions[12];
     bool pieceIsSelected; 
     unsigned int selectedPosition; 
 };
 
-void BitBoard::capture_piece(unsigned int piece, unsigned int square) {
-    PiecePositions[piece] -= pow(2, square);
+void BitBoard::capture_piece(unsigned int piece, U64 square) {
+    PiecePositions[piece] -= (U64) 1 << square;
 }
-void BitBoard::move_piece(unsigned int piece, unsigned int from, unsigned int to) {
-    PiecePositions[piece] -= pow(2, from);
-    PiecePositions[piece] += pow(2, to);
+void BitBoard::move_piece(unsigned int piece, U64 from, U64 to) {
+    PiecePositions[piece] -= (U64) 1 << from;
+    PiecePositions[piece] += (U64) 1 << to; 
 }
 
 class Game {
@@ -96,16 +71,16 @@ class Game {
     const BitBoard get_bitboard() const{
         return bitBoard;
     }
-    void handle_click(unsigned int square);
+    void handle_click(U64 square);
 
     private:
     bool playAsWhite; 
     BitBoard bitBoard; 
-    void move_if_legal(unsigned int from, unsigned int to);
-    int get_piece_at_square (unsigned int square);
+    void move_if_legal(U64 from, U64 to);
+    int get_piece_at_square (U64 square);
 };
 
-void Game::handle_click(unsigned int square) {
+void Game::handle_click(U64 square) {
     // Highlight the clicked piece
     unsigned int pieceAtSquare = get_piece_at_square(square);
     if ((playAsWhite && is_white(pieceAtSquare)) || (!playAsWhite && is_black(pieceAtSquare))) {
@@ -119,8 +94,8 @@ void Game::handle_click(unsigned int square) {
     }
 }
 
-int Game::get_piece_at_square (unsigned int square) {
-    unsigned long long position = pow(2, square); 
+int Game::get_piece_at_square (U64 square) {
+    U64 position = (U64)1 << square; 
     for (unsigned int piece = 0; piece < 12; piece++) {
         if (bitBoard.At(piece) & position) {
             return piece; 
@@ -129,7 +104,7 @@ int Game::get_piece_at_square (unsigned int square) {
     return -1; 
 }
 
-void Game::move_if_legal (unsigned int from, unsigned int to) {
+void Game::move_if_legal (U64 from, U64 to) {
     unsigned int movingPiece = get_piece_at_square(from); 
     unsigned int capturedPiece = get_piece_at_square(to);
     bitBoard.move_piece(movingPiece, from, to); 

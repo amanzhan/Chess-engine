@@ -44,7 +44,7 @@ class Graphics {
         load_textures(); 
     }
 
-    vector<Coordinate> convert_bits_to_coordinate(unsigned long long bits, unsigned int piece);
+    vector<Coordinate> convert_bits_to_coordinate(U64 bits, unsigned int piece);
     void load_board(const BitBoard &bitBoard); 
 
     vector<sf::Sprite> get_sprites() {
@@ -85,7 +85,7 @@ void Graphics::load_textures() {
     textures[B_KING].loadFromFile("Images/BlackKing.png"); 
 }
 
-vector<Coordinate> Graphics::convert_bits_to_coordinate (unsigned long long bits, unsigned int piece) {
+vector<Coordinate> Graphics::convert_bits_to_coordinate (U64 bits, unsigned int piece) {
     vector<Coordinate> retval;
     for (unsigned int i = 0; i < 64; i++) {
         if (!bits) {
@@ -95,7 +95,7 @@ vector<Coordinate> Graphics::convert_bits_to_coordinate (unsigned long long bits
             retval.push_back(Coordinate(i / 8, i % 8));
         }
 
-        bits = bits >> 1; 
+        bits = bits >> (U64) 1; 
     }
     return retval;
 }
