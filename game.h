@@ -1,14 +1,11 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "graphics.h"
 #include "helper_functions.h"
 #include <math.h>
 #include <iostream>
 
 using namespace std;
-
-
 
 class BitBoard {
     public: 
@@ -50,20 +47,14 @@ class BitBoard {
 
     void capture_piece(unsigned int piece, U64 square); 
     void move_piece(unsigned int piece, U64 from, U64 to);
+    bool pseudo_legal(U64 from, U64 to, unsigned int piece); 
 
     private:
     U64 PiecePositions[12];
     bool pieceIsSelected; 
     unsigned int selectedPosition; 
-};
 
-void BitBoard::capture_piece(unsigned int piece, U64 square) {
-    PiecePositions[piece] -= (U64) 1 << square;
-}
-void BitBoard::move_piece(unsigned int piece, U64 from, U64 to) {
-    PiecePositions[piece] -= (U64) 1 << from;
-    PiecePositions[piece] += (U64) 1 << to; 
-}
+};
 
 class Game {
     public: 
@@ -80,36 +71,16 @@ class Game {
     int get_piece_at_square (U64 square);
 };
 
-void Game::handle_click(U64 square) {
-    // Highlight the clicked piece
-    unsigned int pieceAtSquare = get_piece_at_square(square);
-    if ((playAsWhite && is_white(pieceAtSquare)) || (!playAsWhite && is_black(pieceAtSquare))) {
-        bitBoard.select_piece(square); 
-        return; 
-    }
-    
-    if (bitBoard.piece_is_selected()) {
-        move_if_legal(bitBoard.selected_position(), square); 
-        bitBoard.deselect_piece(); 
-    }
-}
+class MoveGenerator {
+    public: 
+    U64 generate_pseudo_legal_moves(BitBoard &bitBoard, unsigned int piece, U64 square); 
 
-int Game::get_piece_at_square (U64 square) {
-    U64 position = (U64)1 << square; 
-    for (unsigned int piece = 0; piece < 12; piece++) {
-        if (bitBoard.At(piece) & position) {
-            return piece; 
-        }
-    }
-    return -1; 
-}
-
-void Game::move_if_legal (U64 from, U64 to) {
-    unsigned int movingPiece = get_piece_at_square(from); 
-    unsigned int capturedPiece = get_piece_at_square(to);
-    bitBoard.move_piece(movingPiece, from, to); 
-    if (is_piece(capturedPiece)) {
-        bitBoard.capture_piece(capturedPiece, to);
-    }
-}
+    private: 
+    U64 pseudo_legal_pawn_move(bool white, BitBoard &bitBoard, U64 square);
+    U64 pseudo_legal_bishop_move(bool white, BitBoard &bitBoard, U64 square);
+    U64 pseudo_legal_knight_move(bool white, BitBoard &bitBoard, U64 square);
+    U64 pseudo_legal_rook_move(bool white, BitBoard &bitBoard, U64 square);
+    U64 pseudo_legal_queen_move(bool white, BitBoard &bitBoard, U64 square);
+    U64 pseudo_legal_king_move(bool white, BitBoard &bitBoard, U64 square);
+};
 #endif

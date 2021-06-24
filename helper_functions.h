@@ -30,14 +30,20 @@ const U64 B_ROOK_STARTING_POS = 0b1000000100000000000000000000000000000000000000
 const U64 B_QUEEN_STARTING_POS = 0b0000100000000000000000000000000000000000000000000000000000000000;
 const U64 B_KING_STARTING_POS = 0b0001000000000000000000000000000000000000000000000000000000000000;
 
-bool is_white(unsigned int piece) {
+inline bool is_white(unsigned int piece) {
     return piece >= 0 && piece <= 5;
 }
-bool is_black(unsigned int piece) {
+
+inline bool is_black(unsigned int piece) {
     return piece > 5 && piece < 12;
 }
 
-bool is_piece(unsigned piece) {
+inline bool is_piece(unsigned piece) {
     return piece >= 0 && piece < 12; 
 }
+
+inline U64 get_bit_at_square(U64 square) {
+    return (U64) 1 << square; 
+}
+
 #endif

@@ -1,5 +1,6 @@
-#include "graphics.h"
 #include "game.h"
+#include "graphics.h"
+
 
 using namespace std;
 
